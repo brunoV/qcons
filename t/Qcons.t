@@ -14,7 +14,7 @@ my @methods = qw/error_string arguments no_param_checks
     program_name program_dir run cleanup io/;
 can_ok ($q, @methods);
 
-$q->file('1.pdb');
+$q->file('t/1.pdb');
 $q->chains( [ 'A', 'L' ] );
 
 my ($by_atom, $by_res) = $q->run;
