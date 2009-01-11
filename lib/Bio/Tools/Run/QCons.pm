@@ -5,12 +5,12 @@ extends 'Bio::Tools::Run::WrapperBase', 'Moose::Object';
 
 =head1 NAME
 
-Bio::Tools::Run::Qcons - A wrapper module of the Qcons application
+Bio::Tools::Run::QCons - A wrapper module of the QCons application
 for the analysis of protein-protein contacts.
 
 =head1 SYNOPSIS
 
-   my $q = Bio::Tools::Run::Qcons->new;
+   my $q = Bio::Tools::Run::QCons->new;
    $q->file($pdbfile);
    $q->chains([$chain1, $chain2]);
    my ($contacts_by_atom, $contacts_by_residue) = $q->run;
@@ -20,11 +20,10 @@ for the analysis of protein-protein contacts.
 This module implements a wrapper for the QCons application. QCons
 itself is an implementation of the Polyhedra algorithm for the
 prediction of protein-protein contacts. From the program's web page
-(L<http://tsailab.tamu.edu/Qcons/>):
+(L<http://tsailab.tamu.edu/QCons/>):
 
 "QContacts allows for a fast and accurate analysis of protein binding
-interfaces. Given a PDB file to upload your own file (specifying PDB
-functionality under construction) and the interacting chains of
+interfaces. Given a PDB file [...] and the interacting chains of
 interest, QContacts will provide a graphical representation of the
 residues in contact. The contact map will not only indicate the
 contacts present between the two proteins, but will also indicate
@@ -42,9 +41,6 @@ interfaces, J. Struc. Biol., vol 153, p. 103-112, 2006.
 Version 0.01
 
 =cut
-
-# Como el constructor no está en este módulo, tengo que setear
-# los parámetros a 'lazy' para que escriba el valor Default.
 
 =head1 METHODS
 
@@ -72,6 +68,9 @@ Gets or sets the file with the protein structures to analyze. The file
 format should be PDB.
 
 =cut
+
+# Como el constructor no está en este módulo, tengo que setear
+# los parámetros a 'lazy' para que escriba el valor Default.
 
 has file => (
     is  => 'rw',
@@ -148,10 +147,13 @@ non-covalent bonds that the program predicts:
 
 =over 5
 
-=item * B<V:> Van der Waals (packing interaction)
-=item * B<I:> Ion pair 
-=item * B<S:> Salt bridge (hydrogen-bonded ion pair)
-=item * B<H:> Hydrogen bond (hydrogen-bonded ion pair)
+=item B<V:> Van der Waals (packing interaction)
+
+=item B<I:> Ion pair 
+
+=item B<S:> Salt bridge (hydrogen-bonded ion pair)
+
+=item B<H:> Hydrogen bond (hydrogen-bonded ion pair)
 
 =back
 
