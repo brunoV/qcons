@@ -48,7 +48,7 @@ TODO: {
     "placeholder date/time"       => qr(Date/time)
   );
 
-  module_boilerplate_ok('lib/Bio/Tools/Run/Qcons.pm');
+  module_boilerplate_ok('lib/Bio/Tools/Run/QCons.pm');
 
 
 }

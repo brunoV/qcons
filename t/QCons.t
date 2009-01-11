@@ -4,26 +4,26 @@ use warnings;
 use Test::More qw/no_plan/;
 use Data::Dumper;
 
-BEGIN { use_ok('Bio::Tools::Run::Qcons') };
+BEGIN { use_ok('Bio::Tools::Run::QCons') }
 
-my $q = Bio::Tools::Run::Qcons->new;
-isa_ok( $q, 'Bio::Tools::Run::Qcons' );
+my $q = Bio::Tools::Run::QCons->new;
+isa_ok( $q, 'Bio::Tools::Run::QCons' );
 
 my @methods = qw/error_string arguments no_param_checks
     save_tempfiles outfile_name tempdir executable program_path
     program_name program_dir run cleanup io/;
-can_ok ($q, @methods);
+can_ok( $q, @methods );
 
 $q->file('t/1.pdb');
 $q->chains( [ 'A', 'L' ] );
 
-my ($by_atom, $by_res) = $q->run;
+my ( $by_atom, $by_res ) = $q->run;
 
 local $Data::Dumper::Indent = 0;
 my @data = <DATA>;
 map { chomp $_ } @data;
 is( Dumper($by_atom), $data[1], 'Parse by atom' );
-is( Dumper($by_res), $data[3], 'Parse by res' );
+is( Dumper($by_res),  $data[3], 'Parse by res' );
 
 __DATA__
 # By atom.
