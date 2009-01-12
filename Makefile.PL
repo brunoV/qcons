@@ -5,8 +5,8 @@ use ExtUtils::MakeMaker;
 WriteMakefile(
     NAME                => 'Bio::Tools::Run::QCons',
     AUTHOR              => 'Bruno Vecchi <vecchi.b@gmail.com>',
-    VERSION_FROM        => 'lib/Bio/Tools/Run/Qcons.pm',
-    ABSTRACT_FROM       => 'lib/Bio/Tools/Run/Qcons.pm',
+    VERSION_FROM        => 'lib/Bio/Tools/Run/QCons.pm',
+    ABSTRACT_FROM       => 'lib/Bio/Tools/Run/QCons.pm',
     ($ExtUtils::MakeMaker::VERSION >= 6.3002
       ? ('LICENSE'=> 'perl')
       : ()),
