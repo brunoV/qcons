@@ -6,17 +6,17 @@ ________________________________________________________________________________
 
 This module implements a wrapper for the QCons application. QCons
 itself is an implementation of the Polyhedra algorithm for the
-prediction of protein-protein contacts. From the program's web page
-http://tsailab.tamu.edu/QCons:
+prediction of protein-protein contacts. From the [program's web page]
+[1]:
 
-   "QContacts allows for a fast and accurate analysis of protein binding
-   interfaces. Given a PDB file [...] and the interacting chains of
-   interest, QContacts will provide a graphical representation of the
-   residues in contact. The contact map will not only indicate the
-   contacts present between the two proteins, but will also indicate
-   whether the contact is a packing interaction,  hydrogen bond, ion pair
-   or salt bridge (hydrogen-bonded ion pair). Contact maps allow for easy
-   visualization and comparison of protein-protein interactions."
+  > QContacts allows for a fast and accurate analysis of protein binding
+  > interfaces. Given a PDB file [...] and the interacting chains of
+  > interest, QContacts will provide a graphical representation of the
+  > residues in contact. The contact map will not only indicate the
+  > contacts present between the two proteins, but will also indicate
+  > whether the contact is a packing interaction,  hydrogen bond, ion pair
+  > or salt bridge (hydrogen-bonded ion pair). Contact maps allow for easy
+  > visualization and comparison of protein-protein interactions.
 
 For a thorough description of the algorithm, it's limitatinons and a
 comparison with several others, refer to Fischer, T. et. al: Assessing
@@ -61,3 +61,4 @@ Copyright (C) 2009 Bruno Vecchi
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
+[1] http://tsailab.tamu.edu/QCons "Qcons"
