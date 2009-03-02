@@ -61,4 +61,4 @@ Copyright (C) 2009 Bruno Vecchi
 This program is free software; you can redistribute it and/or modify it
 under the same terms as Perl itself.
 
-[1] http://tsailab.tamu.edu/QCons "Qcons"
+[1]: http://tsailab.tamu.edu/QCons "Qcons"
