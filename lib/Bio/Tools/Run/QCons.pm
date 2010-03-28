@@ -6,7 +6,7 @@ use Mouse;
 use v5.10;
 use autodie;
 use namespace::autoclean;
-use Capture::Tiny 'capture';
+use Capture::Tiny 'capture_merged';
 
 
 has file => (
@@ -22,9 +22,15 @@ has chains => (
 );
 
 has probe_radius => (
-    is      => 'ro',
+    is      => 'rw',
     isa     => 'Num',
     default => 1.4,
+);
+
+has verbose => (
+    is => 'rw',
+    isa => 'Bool',
+    default => 0,
 );
 
 has _temp_dir => (
@@ -50,7 +56,11 @@ sub run {
 
     $self->_arguments->{-prefOut} = $self->_temp_dir->dirname . '/';
 
-    capture { system( $executable, %{ $self->_arguments } ) };
+    my $output = capture_merged {
+        system( $executable, %{ $self->_arguments } )
+    };
+
+    warn $output if $self->verbose;
 
     my @contacts_by_atom    = $self->_parse_by_atom;
     my @contacts_by_residue = $self->_parse_by_residue;
@@ -246,6 +256,10 @@ Gets or sets the probe radius that the program uses to calculate the
 exposed and buried surfaces. It defaults to 1.4 Angstroms, and unless
 you have a really strong reason to change this, you should refrain
 from doing it.
+
+=attr verbose
+
+Output debugging information to C<STDERR>. Off by default.
 
 =method run
 
