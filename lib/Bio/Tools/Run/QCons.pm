@@ -200,8 +200,6 @@ sub _build__arguments {
     };
 }
 
-__PACKAGE__->meta->make_immutable;
-
 __END__
 
 =head1 SYNOPSIS
