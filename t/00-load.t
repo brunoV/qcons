@@ -1,9 +1,5 @@
-#!perl -T
+use Test::More;
 
-use Test::More tests => 1;
+use_ok( 'Bio::Tools::Run::QCons' );
 
-BEGIN {
-	use_ok( 'Bio::Tools::Run::QCons' );
-}
-
-diag( "Testing Bio::Tools::Run::QCons $Bio::Tools::Run::QCons::VERSION, Perl $], $^X" );
+done_testing();
