@@ -9,9 +9,8 @@ BEGIN { use_ok('Bio::Tools::Run::QCons') }
 my $q = Bio::Tools::Run::QCons->new;
 isa_ok( $q, 'Bio::Tools::Run::QCons' );
 
-my @methods = qw/error_string arguments no_param_checks
-    save_tempfiles outfile_name tempdir executable program_path
-    program_name program_dir run cleanup io/;
+my @methods = qw(program_name run);
+
 can_ok( $q, @methods );
 
 $q->file('t/1.pdb');

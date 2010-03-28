@@ -1,7 +1,8 @@
 package Bio::Tools::Run::QCons;
-
 use Moose;
-extends 'Bio::Tools::Run::WrapperBase', 'Moose::Object';
+use v5.10;
+use autodie;
+use namespace::autoclean;
 
 =head1 NAME
 
@@ -109,6 +110,18 @@ has probe_radius => (
     lazy    => 1,
 );
 
+has _temp_dir => (
+    is => 'ro',
+    isa => 'File::Temp::Dir',
+    lazy_build => 1,
+);
+
+sub _build__temp_dir {
+    require File::Temp;
+
+    return File::Temp->newdir();
+}
+
 =item my ($by_atom, $by_res) = $q->run;
 
 Runs the program and parses the result files. Typically, the program
@@ -190,44 +203,36 @@ number are given as hashrefs.
 
 =cut
 
-override 'run' => sub {
+sub run {
 
     # Run Qcontacts with the set parameters, and return
     # an array with the contact information.
 
     my $self = shift;
     my $arguments;
-    my $executable = $self->executable;
-    my $tempdir    = $self->tempdir . '/';
-    $self->arguments->{-prefOut} = $tempdir;
-    map { $arguments .= "$_ " } $self->arguments;
+    my $executable = $self->program_name;
+
+    $self->_arguments->{-prefOut} = $self->_temp_dir->dirname . '/';
+    warn $self->_temp_dir->dirname;
+    map { $arguments .= "$_ " } %{ $self->_arguments };
 
     qx{ $executable $arguments };
 
     my @contacts_by_atom    = $self->_parse_by_atom;
     my @contacts_by_residue = $self->_parse_by_residue;
     return \@contacts_by_atom, \@contacts_by_residue;
-    $self->cleanup;
 };
 
 has 'program_name' => (
     is      => 'ro',
     isa     => 'Str',
     default => 'Qcontacts',
-    lazy    => 1,
 );
 
-has program_dir => (
-    is  => 'rw',
-    isa => 'Str',
-);
-
-has arguments => (
+has _arguments => (
     is         => 'ro',
-    isa        => 'HashRef',
-    lazy       => 1,
-    auto_deref => 1,
-    builder    => '_set_arguments',
+    init_arg   => undef,
+    lazy_build => 1,
 );
 
 # Private methods
@@ -239,17 +244,15 @@ sub _parse_by_residue {
 
     my $self = shift;
     my @contacts;
-    my $io = $self->io;
 
     # Get the path to the output file.
-    my $filename = $self->arguments->{-prefOut} . '-by-res.vor';
+    my $filename = $self->_arguments->{-prefOut} . '/-by-res.vor';
 
-    # Initialize a Bio::Root::IO object to read the output file.
-    $io->_initialize_io( -file => $filename );
+    open( my $fh, '<', $filename );
 
     # Parse the file line by line, each line corresponds to a
     # contact.
-    while ( my $line = $io->_readline ) {
+    while ( my $line = <$fh> ) {
         my @fields = split( /\s+/, $line );
 
         my %contact = (
@@ -276,18 +279,16 @@ sub _parse_by_atom {
 
     my $self = shift;
     my @contacts;
-    my $io = $self->io;
 
     # Get the path to the output file.
-    my $filename = $self->arguments->{-prefOut} . '-by-atom.vor';
+    my $filename = $self->_arguments->{-prefOut} . '/-by-atom.vor';
 
-    # Initialize a Bio::Root::IO object to read the output file.
-    $io->_initialize_io( -file => $filename );
 
+    open( my $fh, '<', $filename );
     # Parse the file line by line, each line corresponds to a
     # contact.
 
-    my %meaning_for = (
+    state $meaning_for = {
 
         # What each parsed field means, depending on the contact
         # type (fields[1])
@@ -303,9 +304,9 @@ sub _parse_by_atom {
             19 => 'Rno'
         },
         I => { 13 => 'area', 14 => 'Rno' },
-    );
+    };
 
-    while ( my $line = $io->_readline ) {
+    while ( my $line = <$fh> ) {
         my @fields = split( ' ', $line );
         my %contact = (
             atom1 => {
@@ -325,18 +326,18 @@ sub _parse_by_atom {
         );
 
         # I can't wait for Perl 6's junctions.
-        foreach my $type ( keys %meaning_for ) {
+        foreach my $type ( keys %$meaning_for ) {
             if ( $type eq $fields[1] ) {
-                foreach my $field ( keys %{ $meaning_for{$type} } ) {
+                foreach my $field ( keys %{ $meaning_for->{$type} } ) {
 
                     # I just realized that there's parameter in the 'S' type
                     # that has a ')' sticked to it, remove it.
                     $fields[$field] =~ s/\)//g;
-                    $contact{ $meaning_for{$type}->{$field} }
+                    $contact{ $meaning_for->{$type}{$field} }
                         = $fields[$field];
-                }    # <--|
-            }    # <------| I don't like how this looks!
-        }    # <----------| I don't like nested foreach loops!
+                }
+            }
+        }
 
         push @contacts, \%contact;
     }
@@ -345,7 +346,7 @@ sub _parse_by_atom {
 
 }
 
-sub _set_arguments {
+sub _build__arguments {
     my $self = shift;
     return {
         -c1 => ${ $self->chains }[0],
@@ -355,5 +356,4 @@ sub _set_arguments {
     };
 }
 
-no Moose;
-1
+__PACKAGE__->meta->make_immutable;
