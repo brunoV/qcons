@@ -1,113 +1,30 @@
 package Bio::Tools::Run::QCons;
-use Moose;
+
+# ABSTRACT: Run Qcons to analyze protein-protein contacts
+
+use Mouse;
 use v5.10;
 use autodie;
 use namespace::autoclean;
+use Capture::Tiny 'capture';
 
-=head1 NAME
-
-Bio::Tools::Run::QCons - A wrapper module of the QCons application
-for the analysis of protein-protein contacts.
-
-=head1 SYNOPSIS
-
-   my $q = Bio::Tools::Run::QCons->new;
-   $q->file($pdbfile);
-   $q->chains([$chain1, $chain2]);
-   my ($contacts_by_atom, $contacts_by_residue) = $q->run;
-
-=head1 DESCRIPTION
-
-This module implements a wrapper for the QCons application. QCons
-itself is an implementation of the Polyhedra algorithm for the
-prediction of protein-protein contacts. From the program's web page
-(L<http://tsailab.tamu.edu/QCons/>):
-
-"QContacts allows for a fast and accurate analysis of protein binding
-interfaces. Given a PDB file [...] and the interacting chains of
-interest, QContacts will provide a graphical representation of the
-residues in contact. The contact map will not only indicate the
-contacts present between the two proteins, but will also indicate
-whether the contact is a packing interaction,  hydrogen bond, ion pair
-or salt bridge (hydrogen-bonded ion pair). Contact maps allow for easy
-visualization and comparison of protein-protein interactions."
-
-For a thorough description of the algorithm, it's limitatinons and a
-comparison with several others, refer to Fischer, T. et. al: Assessing
-methods for identifying pair-wise atomic contacts across binding
-interfaces, J. Struc. Biol., vol 153, p. 103-112, 2006.
-
-=head1 VERSION
-
-Version 0.01
-
-=cut
-
-=head1 METHODS
-
-=head2 Constructor
-
-=over 4
-
-=item Bio::Tools::Run::QCons->new();
-
-Create a new QCons object.
-
-=back
-
-=cut
-
-=head2 Methods
-
-=cut
-
-=over 4
-
-=item $q->file($pdbfile);
-
-Gets or sets the file with the protein structures to analyze. The file
-format should be PDB.
-
-=cut
-
-# Como el constructor no está en este módulo, tengo que setear
-# los parámetros a 'lazy' para que escriba el valor Default.
 
 has file => (
     is  => 'rw',
     isa => 'Str',
+    required => 1,
 );
-
-=item $q->chains(['A', 'B']);
-
-Gets or sets the chain IDs of the subunits whose contacts the program
-will calculate. It takes an array reference of two strings as
-argument.
-
-=cut
 
 has chains => (
     is         => 'rw',
     isa        => 'ArrayRef[Str]',
-    auto_deref => 1,
-    lazy       => 1,
-    default    => sub { [ '', '' ] },
+    required   => 1,
 );
 
-=item $q->probe_radius($radius);
-
-Gets or sets the probe radius that the program uses to calculate the
-exposed and buried surfaces. It defaults to 1.4 Angstroms, and unless
-you have a really strong reason to change this, you should refrain
-from doing it.
-
-=cut
-
 has probe_radius => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => 'Num',
     default => 1.4,
-    lazy    => 1,
 );
 
 has _temp_dir => (
@@ -122,87 +39,6 @@ sub _build__temp_dir {
     return File::Temp->newdir();
 }
 
-=item my ($by_atom, $by_res) = $q->run;
-
-Runs the program and parses the result files. Typically, the program
-outputs two files, in which the contact information is described in a
-per-atom or per-residue basis. The 'run' method will return two array
-references with all the information for every contact found.
-
-The structure of the C<@$by_atom> array is as follows:
-
-   $by_atom = [
-                {
-                  'area' => '0.400',
-                  'type' => 'V',
-                  'atom2' => {
-                               'number' => '461',
-                               'res_name' => 'SER',
-                               'res_number' => '59',
-                               'name' => 'OG'
-                             },
-                  'atom1' => {
-                               'number' => '2226',
-                               'res_name' => 'ASN',
-                               'res_number' => '318',
-                               'name' => 'CB'
-                             }
-                },
-              ]
-
-This corresponds to the information of one contact. Here, 'atom1'
-refers to the atom belonging to the first of the two polypeptides
-given to the 'chains' method; 'atom2' refers to the second. The fields
-'number' and 'name' refer to the atom's number and name, respectively.
-The fields 'res_name' and 'res_number' indicate the atom's parent
-residue name and residue id. 'type' indicates one of the five
-non-covalent bonds that the program predicts:
-
-=over 5
-
-=item B<V:> Van der Waals (packing interaction)
-
-=item B<I:> Ion pair 
-
-=item B<S:> Salt bridge (hydrogen-bonded ion pair)
-
-=item B<H:> Hydrogen bond (hydrogen-bonded ion pair)
-
-=back
-
-Every bond type has the 'area' attribute, which indicates the surface
-(in square Angstroms) of the interaction. In addition, all N-O
-contacts (I, S and H) have a 'Rno' value that represents the N-O
-distance. Directional contacts (S and H) also have an 'angle' feature
-that indicates the contact angle. For salt bridges, estimations of the
-free energy of hydrogen bond (dGhb) and free energy of ionic pair
-(dGip) are also given.
-
-The C<@$by_res> array is organized as follows:
-
-   $by_res = [
-               {
-                 'area' => '20.033',
-                 'res1' => {
-                             'number' => '318',
-                             'name' => 'ASN'
-                           },
-                 'res2' => {
-                             'number' => '59',
-                             'name' => 'SER'
-                           }
-               },
-             ]
-
-Here, bond type is obviously not given since the contact can possibly
-involve more than one atom-atom contact type. 'res1' and 'res2'
-correspond to the residues of the first and second chain ID given,
-respectively. 'area' is the sum of every atom-atom contact that the
-residue pair has. Their names (as three-letter residue names) and
-number are given as hashrefs.
-
-=cut
-
 sub run {
 
     # Run Qcontacts with the set parameters, and return
@@ -213,10 +49,8 @@ sub run {
     my $executable = $self->program_name;
 
     $self->_arguments->{-prefOut} = $self->_temp_dir->dirname . '/';
-    warn $self->_temp_dir->dirname;
-    map { $arguments .= "$_ " } %{ $self->_arguments };
 
-    qx{ $executable $arguments };
+    capture { system( $executable, %{ $self->_arguments } ) };
 
     my @contacts_by_atom    = $self->_parse_by_atom;
     my @contacts_by_residue = $self->_parse_by_residue;
@@ -357,3 +191,139 @@ sub _build__arguments {
 }
 
 __PACKAGE__->meta->make_immutable;
+
+__END__
+
+=head1 SYNOPSIS
+
+   my $q = Bio::Tools::Run::QCons->new(
+       file => $pdbfile,
+       chains => [$chain1, $chain2],
+   );
+   my ($contacts_by_atom, $contacts_by_residue) = $q->run;
+
+=head1 DESCRIPTION
+
+This module implements a wrapper for the QCons application. QCons
+itself is an implementation of the Polyhedra algorithm for the
+prediction of protein-protein contacts. From the program's web page
+(L<http://tsailab.tamu.edu/QCons/>):
+
+"QContacts allows for a fast and accurate analysis of protein binding
+interfaces. Given a PDB file [...] and the interacting chains of
+interest, QContacts will provide a graphical representation of the
+residues in contact. The contact map will not only indicate the
+contacts present between the two proteins, but will also indicate
+whether the contact is a packing interaction,  hydrogen bond, ion pair
+or salt bridge (hydrogen-bonded ion pair). Contact maps allow for easy
+visualization and comparison of protein-protein interactions."
+
+For a thorough description of the algorithm, it's limitatinons and a
+comparison with several others, refer to Fischer, T. et. al: Assessing
+methods for identifying pair-wise atomic contacts across binding
+interfaces, J. Struc. Biol., vol 153, p. 103-112, 2006.
+
+=attr file
+
+Gets or sets the file with the protein structures to analyze. The file
+format should be PDB.
+
+Required.
+
+=attr chains
+
+    chains => ['A', 'B'];
+
+Gets or sets the chain IDs of the subunits whose contacts the program
+will calculate. It takes an array reference of two strings as
+argument.
+
+Required.
+
+=attr probe_radius($radius);
+
+Gets or sets the probe radius that the program uses to calculate the
+exposed and buried surfaces. It defaults to 1.4 Angstroms, and unless
+you have a really strong reason to change this, you should refrain
+from doing it.
+
+=method run
+
+    my ($by_atom, $by_res) = $q->run;
+
+Runs the program and parses the result files. Typically, the program
+outputs two files, in which the contact information is described in a
+per-atom or per-residue basis. The 'run' method will return two array
+references with all the information for every contact found.
+
+The structure of the C<@$by_atom> array is as follows:
+
+   $by_atom = [
+                {
+                  'area' => '0.400',
+                  'type' => 'V',
+                  'atom2' => {
+                               'number' => '461',
+                               'res_name' => 'SER',
+                               'res_number' => '59',
+                               'name' => 'OG'
+                             },
+                  'atom1' => {
+                               'number' => '2226',
+                               'res_name' => 'ASN',
+                               'res_number' => '318',
+                               'name' => 'CB'
+                             }
+                },
+              ]
+
+This corresponds to the information of one contact. Here, 'atom1'
+refers to the atom belonging to the first of the two polypeptides
+given to the 'chains' method; 'atom2' refers to the second. The fields
+'number' and 'name' refer to the atom's number and name, respectively.
+The fields 'res_name' and 'res_number' indicate the atom's parent
+residue name and residue id. 'type' indicates one of the five
+non-covalent bonds that the program predicts:
+
+=begin :list
+
+* B<V:> Van der Waals (packing interaction)
+
+* B<I:> Ion pair
+
+* B<S:> Salt bridge (hydrogen-bonded ion pair)
+
+* B<H:> Hydrogen bond (hydrogen-bonded ion pair)
+
+=end :list
+
+Every bond type has the 'area' attribute, which indicates the surface
+(in square Angstroms) of the interaction. In addition, all N-O
+contacts (I, S and H) have a 'Rno' value that represents the N-O
+distance. Directional contacts (S and H) also have an 'angle' feature
+that indicates the contact angle. For salt bridges, estimations of the
+free energy of hydrogen bond (dGhb) and free energy of ionic pair
+(dGip) are also given.
+
+The C<@$by_res> array is organized as follows:
+
+   $by_res = [
+               {
+                 'area' => '20.033',
+                 'res1' => {
+                             'number' => '318',
+                             'name' => 'ASN'
+                           },
+                 'res2' => {
+                             'number' => '59',
+                             'name' => 'SER'
+                           }
+               },
+             ]
+
+Here, bond type is obviously not given since the contact can possibly
+involve more than one atom-atom contact type. 'res1' and 'res2'
+correspond to the residues of the first and second chain ID given,
+respectively. 'area' is the sum of every atom-atom contact that the
+residue pair has. Their names (as three-letter residue names) and
+number are given as hashrefs.

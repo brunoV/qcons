@@ -6,7 +6,11 @@ use Data::Dumper;
 
 BEGIN { use_ok('Bio::Tools::Run::QCons') }
 
-my $q = Bio::Tools::Run::QCons->new;
+my $q = Bio::Tools::Run::QCons->new(
+    file => 't/1.pdb',
+    chains => ['A', 'L'],
+);
+
 isa_ok( $q, 'Bio::Tools::Run::QCons' );
 
 my @methods = qw(program_name run);
