@@ -1,8 +1,0 @@
-Changes
-MANIFEST
-Makefile.PL
-README
-lib/Bio/Tools/Run/Qcons.pm
-t/00-load.t
-t/pod-coverage.t
-t/pod.t
