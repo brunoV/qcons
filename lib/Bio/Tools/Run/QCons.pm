@@ -200,6 +200,7 @@ sub _build__arguments {
     };
 }
 
+1;
 __END__
 
 =head1 SYNOPSIS
