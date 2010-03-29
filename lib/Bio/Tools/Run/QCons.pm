@@ -8,24 +8,38 @@ use autodie;
 use namespace::autoclean;
 use Capture::Tiny 'capture_merged';
 
-
 has file => (
-    is  => 'rw',
+    is  => 'ro',
     isa => 'Str',
     required => 1,
 );
 
 has chains => (
-    is         => 'rw',
+    is         => 'ro',
     isa        => 'ArrayRef[Str]',
     required   => 1,
 );
 
 has probe_radius => (
-    is      => 'rw',
+    is      => 'ro',
     isa     => 'Num',
     default => 1.4,
 );
+
+has _result => ( is => 'ro', lazy_build => 1 );
+
+has [qw(residue_contacts atom_contacts)] => (
+    is => 'ro',
+    lazy_build => 1,
+);
+
+sub _build_residue_contacts {
+    return $_[0]->_result->{by_residue};
+}
+
+sub _build_atom_contacts {
+    return $_[0]->_result->{by_atom};
+}
 
 has verbose => (
     is => 'rw',
@@ -45,7 +59,7 @@ sub _build__temp_dir {
     return File::Temp->newdir();
 }
 
-sub run {
+sub _build__result {
 
     # Run Qcontacts with the set parameters, and return
     # an array with the contact information.
@@ -62,10 +76,11 @@ sub run {
 
     warn $output if $self->verbose;
 
-    my @contacts_by_atom    = $self->_parse_by_atom;
-    my @contacts_by_residue = $self->_parse_by_residue;
-    return \@contacts_by_atom, \@contacts_by_residue;
-};
+    my @contacts_by_atom    = $self->_parse_by_atom();
+    my @contacts_by_residue = $self->_parse_by_residue();
+
+    return { by_atom => \@contacts_by_atom, by_residue => \@contacts_by_residue };
+}
 
 has 'program_name' => (
     is      => 'ro',
@@ -209,7 +224,8 @@ __END__
        file => $pdbfile,
        chains => [$chain1, $chain2],
    );
-   my ($contacts_by_atom, $contacts_by_residue) = $q->run;
+   my $contacts_by_atom = $q->atom_contacts;
+   $contacts_by_residue = $q->residue_contacts;
 
 =head1 DESCRIPTION
 
@@ -260,16 +276,12 @@ from doing it.
 
 Output debugging information to C<STDERR>. Off by default.
 
-=method run
+=attr atom_contacts
 
-    my ($by_atom, $by_res) = $q->run;
+Return an array reference with the information of every atom-atom
+contact found.
 
-Runs the program and parses the result files. Typically, the program
-outputs two files, in which the contact information is described in a
-per-atom or per-residue basis. The 'run' method will return two array
-references with all the information for every contact found.
-
-The structure of the C<@$by_atom> array is as follows:
+The structure of the array reference is as follows:
 
    $by_atom = [
                 {
@@ -318,7 +330,12 @@ that indicates the contact angle. For salt bridges, estimations of the
 free energy of hydrogen bond (dGhb) and free energy of ionic pair
 (dGip) are also given.
 
-The C<@$by_res> array is organized as follows:
+=attr residue_contacts
+
+Returns an array reference with the information of every residue-residue
+contact found.
+
+The structure of the array is organized as follows:
 
    $by_res = [
                {
