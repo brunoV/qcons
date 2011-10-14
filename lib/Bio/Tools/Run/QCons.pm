@@ -3,7 +3,6 @@ package Bio::Tools::Run::QCons;
 # ABSTRACT: Run Qcons to analyze protein-protein contacts
 
 use Mouse;
-use v5.10;
 use autodie;
 use namespace::autoclean;
 use Capture::Tiny 'capture_merged';
@@ -147,7 +146,7 @@ sub _parse_by_atom {
     # Parse the file line by line, each line corresponds to a
     # contact.
 
-    state $meaning_for = {
+    my $meaning_for = {
 
         # What each parsed field means, depending on the contact
         # type (fields[1])
