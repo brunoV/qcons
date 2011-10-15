@@ -1,4 +1,7 @@
 package Bio::Tools::Run::QCons::Types;
+
+# ABSTRACT: Type library for Bio::Tools::Run::QCons
+
 use strict;
 use warnings;
 

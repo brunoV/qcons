@@ -370,3 +370,7 @@ correspond to the residues of the first and second chain ID given,
 respectively. 'area' is the sum of every atom-atom contact that the
 residue pair has. Their names (as three-letter residue names) and
 number are given as hashrefs.
+
+=head1 THANKS
+
+To Chad Davis for prodding me to dust off and release this module to the CPAN.
