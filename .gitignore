@@ -14,7 +14,6 @@ nytprof*
 .DS_Store
 MYMETA.yml
 *.o
-bin/
 .prove
 *.swp
 *.swo
