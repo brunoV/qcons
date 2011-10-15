@@ -1,4 +1,6 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.112880  2011-10-15 14:23:40 America/Argentina/Buenos_Aires
     - Initial release to CPAN
