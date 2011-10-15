@@ -243,7 +243,7 @@ whether the contact is a packing interaction,  hydrogen bond, ion pair
 or salt bridge (hydrogen-bonded ion pair). Contact maps allow for easy
 visualization and comparison of protein-protein interactions."
 
-For a thorough description of the algorithm, it's limitatinons and a
+For a thorough description of the algorithm, its limitations and a
 comparison with several others, refer to Fischer, T. et. al: Assessing
 methods for identifying pair-wise atomic contacts across binding
 interfaces, J. Struc. Biol., vol 153, p. 103-112, 2006.
