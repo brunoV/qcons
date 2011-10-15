@@ -6,6 +6,13 @@ use Mouse;
 use autodie;
 use namespace::autoclean;
 use Capture::Tiny 'capture_merged';
+use Bio::Tools::Run::QCons::Types 'Executable';
+
+has 'program_name' => (
+    is      => 'ro',
+    isa     => 'Executable',
+    default => 'Qcontacts',
+);
 
 has file => (
     is  => 'ro',
@@ -80,12 +87,6 @@ sub _build__result {
 
     return { by_atom => \@contacts_by_atom, by_residue => \@contacts_by_residue };
 }
-
-has 'program_name' => (
-    is      => 'ro',
-    isa     => 'Str',
-    default => 'Qcontacts',
-);
 
 has _arguments => (
     is         => 'ro',
@@ -274,6 +275,19 @@ from doing it.
 =attr verbose
 
 Output debugging information to C<STDERR>. Off by default.
+
+=attr program_name
+
+The name of the executable. Defaults to 'Qcontacts', but it can be set
+to anything at construction time:
+
+   my $q = Bio::Tools::Run::QCons->new(
+       program_name => 'qcons',
+       file => $pdbfile,
+       chains => [$chain1, $chain2],
+
+Notice that if the binary is not on your PATH environment variable, you
+should give C<program_name> a full path to it.
 
 =attr atom_contacts
 
