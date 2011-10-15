@@ -8,7 +8,7 @@ use warnings;
 use Mouse::Util::TypeConstraints;
 use namespace::autoclean;
 
-use File::Which;
+use IPC::Cmd qw(can_run);
 
 subtype 'Executable'
     => as 'Str',
@@ -20,7 +20,7 @@ sub _exists_executable {
 
     return 1 if -x $candidate;
 
-    return scalar which($candidate);
+    return scalar can_run($candidate);
 }
 
 no Mouse::Util::TypeConstraints;
