@@ -1,7 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
-    - Prefer core mod IPC::Cmd over File::Which (Chad Davis)
+    - Prefer core module IPC::Cmd over File::Which (Chad Davis)
     - Minor doc fixes
 
 0.112880  2011-10-15 14:23:40 America/Argentina/Buenos_Aires
