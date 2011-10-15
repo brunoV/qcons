@@ -1,6 +1,8 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+
+0.112881  2011-10-15 18:38:58 America/Argentina/Buenos_Aires
     - Prefer core module IPC::Cmd over File::Which (Chad Davis)
     - Minor doc fixes
 
