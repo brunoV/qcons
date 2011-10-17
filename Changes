@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    - Construct file paths portably
 
 0.112881  2011-10-15 18:38:58 America/Argentina/Buenos_Aires
     - Prefer core module IPC::Cmd over File::Which (Chad Davis)
