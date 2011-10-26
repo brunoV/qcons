@@ -1,6 +1,7 @@
 Revision history for {{$dist->name}}
 
 {{$NEXT}}
+    - Fix a minor issue with the mock executable.
 
 0.112900  2011-10-16 23:00:01 America/Argentina/Buenos_Aires
     - Construct file paths portably

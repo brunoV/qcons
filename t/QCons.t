@@ -3,6 +3,7 @@ use warnings;
 
 use Test::More qw/no_plan/;
 use FindBin qw($Bin);
+use File::Spec;
 
 BEGIN { use_ok('Bio::Tools::Run::QCons') }
 
@@ -11,7 +12,7 @@ my @Data = map { eval } <DATA>;
 my $m = Bio::Tools::Run::QCons->new(
     file         => "$Bin/1.pdb",
     chains       => [ 'A', 'L' ],
-    program_name => "$Bin/bin/Qcontacts-mock"
+    program_name => File::Spec->catfile($Bin, 'bin', 'Qcontacts-mock'),
 );
 
 test_results( $m );

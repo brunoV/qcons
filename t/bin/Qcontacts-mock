@@ -11,5 +11,7 @@ my %opts = @ARGV;
 # Mocking the following command:
 # "Qcontacts -prefOut /some/tmp/dir -c2 L -i t/1.pdb -probe 1.4 -c1 A"
 
-copy( File::Spec->catfile( $Bin, $_ ), $opts{-prefOut} )
-  for ( '-by-atom.vor', '-by-res.vor' );
+copy(
+    File::Spec->catfile( $Bin, $_ ),
+    File::Spec->catfile( $opts{-prefOut}, '' )
+) for ( '-by-atom.vor', '-by-res.vor' );
